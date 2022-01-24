@@ -1,23 +1,9 @@
 # MAM-parsed
  
-This Git repository contains [MAM (Miqra According to the Masorah)](https://en.wikisource.org/wiki/User:Dovi/Miqra_according_to_the_Masorah) in a parsed format.
+This Git repository uses the parsed version of [MAM (Miqra According to the Masorah)](https://en.wikisource.org/wiki/User:Dovi/Miqra_according_to_the_Masorah) prepared by bdenckla.
 
-It contains a JSON file for each of the 6 main tabs of the [MAM Google Sheet.](https://docs.google.com/spreadsheets/d/1mkQyj6by1AtBUabpbaxaZq9Z2X3pX8ZpwG91ZCSOEYs/edit#gid=920165745)
+There are two python scripts: to_TEX which can convert one of the json files to a .tex file that can be compiled to pdf. The script converts each of the MAM templates to an appropriate TEX layout (full inplementation still in development). A major goal is adding all documentation as notes to the main text. These are added as 'critical notes' using the reledmac package. Note that compiling to TEX will require installing all the involved TEX packages. Also note that reledmac requries a 3-pass compliation. 
 
-Each JSON file represents its corresponding tab in an easier-to-read format.
+to_html creates a html file of the nusach notes on each verse in each json file.
 
-(It is easier for a *program* to read, that is. It is not very human-readable.)
-
-The format of the JSON files is easier to read because it is *parsed*.
-
-The cells of the C and E columns of each tab are just big Wikitext strings,
-including Wikitext templates.
-
-In contrast, the JSON files represent the C and E column data as
-parse trees that "know" about the Wikitext template format, e.g. {{f|a|b|c}}.
-
-This Git repository also contains a toy sample application giving some sense of how
-the JSON files might be used.
-
-The format of these JSON files is not yet stable. I.e. if you write an application
-based on their format, be aware that their format is still subject to change at this time.
+Some example tex, html, and pdf files are in the 'out' directory.
