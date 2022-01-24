@@ -1,4 +1,4 @@
-# MAM-parsed
+# MAM-TEX
  
 This Git repository uses the parsed version of [MAM (Miqra According to the Masorah)](https://en.wikisource.org/wiki/User:Dovi/Miqra_according_to_the_Masorah) prepared by bdenckla.
 
