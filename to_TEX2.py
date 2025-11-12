@@ -5,6 +5,7 @@ import os
 _MINIROW = collections.namedtuple('Minirow', 'D, CP, EP')
 _SUBTYPE_FNS = {  # wte: Wikitext element (str or single-item dict)
     'tmpl': lambda wte: wte[0][0],
+    'stmpl': lambda wte: wte.split('|')[0] if isinstance(wte, str) else wte,  # New format: structured template as string
     'custom_tag': lambda wte: wte,
     'unparseable': lambda wte: None,
 }
@@ -13,7 +14,9 @@ _PSV_PSN_CATEGORIES = {
     str('תתת'): '2 (post-chapter)'
 }
 
-using_ednotes= False
+# Configuration settings
+using_ednotes = False  # Setting 1: With notes (True) / Without notes (False)
+use_column_markers = True  # Setting 2: Format songs using column markers (True/False)
 def _openw(path, **kwargs):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return open(path, 'w', encoding='utf-8', **kwargs)
@@ -33,6 +36,21 @@ def _rsubtype(wtel):
     assert len(keys) == 1
     key = keys[0]
     return _subtype(key, wtel)
+
+def _parse_stmpl(stmpl_str):
+    """Parse a structured template string into a dict-like structure.
+
+    Example: "מ:קמץ|ד=נׇעֳמִ֜י|ס=נָעֳמִ֜י" ->
+             {'name': 'מ:קמץ', 'params': {'ד': 'נׇעֳמִ֜י', 'ס': 'נָעֳמִ֜י'}}
+    """
+    parts = stmpl_str.split('|')
+    name = parts[0]
+    params = {}
+    for part in parts[1:]:
+        if '=' in part:
+            key, val = part.split('=', 1)
+            params[key] = val
+    return {'name': name, 'params': params}
 
 def print_nusah_tmpl(r, wtel, psv_psn, column_letter):
     if (column_letter != 'E'):
@@ -55,6 +73,90 @@ def wtel_to_str(wtel,caller=""):  # returns a TEX string
     keys = tuple(wtel.keys())
     assert len(keys) == 1
     key = keys[0]
+
+    # Handle stmpl (new format) by converting to simplified form
+    if key == 'stmpl':
+        parsed = _parse_stmpl(wtel['stmpl'])
+        tmpl_name = parsed['name']
+        params = parsed['params']
+
+        # Handle specific stmpl templates based on template name
+        if tmpl_name == "מ:קמץ":
+            # For קמץ, return the 'ס' param (grammatical form)
+            return params.get('ס', params.get('ד', ''))
+        elif tmpl_name == "ר1":
+            return "{\\hfill}"
+        elif tmpl_name in ["ר2", "ר3"]:
+            return r'\newline\hspace*{.5em}'
+        elif tmpl_name == "ר0":
+            return r'\hspace{1em}'
+        elif tmpl_name in ["מ:לגרמיה", "מ:לגרמיה-2"]:
+            return u"\u2009" + "| "
+        elif tmpl_name == "מ:פסק":
+            return " | "
+        elif tmpl_name == "מ:מקף אפור":
+            return " "
+        elif tmpl_name in ["כו\"ק", "קו\"כ"]:
+            # Get the last param which is usually the qere reading
+            vals = list(params.values())
+            if len(vals) >= 2:
+                if caller == "":
+                    text = "(" + vals[-2] + ")"
+                    text += "\\kri{" + vals[-1] + "}"
+                    return text
+                else:
+                    return "(" + vals[-2] + "){" + vals[-1] + "}"
+            return vals[-1] if vals else ''
+        elif tmpl_name == "קרי ולא כתיב":
+            vals = list(params.values())
+            if caller == "":
+                text = "( )\\kri{קרי ולא כתיב: " + (vals[0] if vals else '') + "}"
+                return text
+            else:
+                return "(){קרי ולא כתיב: " + (vals[0] if vals else '') + "}"
+        elif tmpl_name == "כתיב ולא קרי":
+            vals = list(params.values())
+            if caller == "":
+                text = "(" + (vals[0] if vals else '') + ")"
+                text += "\\kri{כתיב ולא קרי}"
+                return text
+            else:
+                return "(" + (vals[0] if vals else '') + "){כתיב ולא קרי}"
+        elif tmpl_name == "מ:אות-ג":
+            vals = list(params.values())
+            letter = vals[0] if vals else ''
+            if caller != "":
+                return "{\\Large " + letter + "}"
+            else:
+                return "\\edtext{{\\Large " + letter + "}}\\kri{אות גדולה}}"
+        elif tmpl_name == "מ:אות-ק":
+            vals = list(params.values())
+            letter = vals[0] if vals else ''
+            if caller != "":
+                return "\\small{" + letter + "}"
+            else:
+                return "\\edtext{\\small{" + letter + " }}{\\kri{אות קטנה}}"
+        elif tmpl_name == "מ:אות מנוקדת":
+            vals = list(params.values())
+            if caller != "":
+                return vals[0] if vals else ''
+            text = (vals[0] if vals else '') + "}{"
+            text += "\\kri{אות מנוקדת}"
+            return text
+        elif tmpl_name in ["גלגל", "גלגל-2"]:
+            return "֪"
+        elif tmpl_name == "מ:דחי":
+            # Dagesh/hiriq - just return the corrected form (last param)
+            vals = list(params.values())
+            return vals[-1] if vals else ''
+        elif tmpl_name == "מ:צינור":
+            # Vertical pipe - return the corrected form
+            vals = list(params.values())
+            return vals[-1] if vals else ''
+        # For unknown stmpl, return the last param value or first param or empty string
+        vals = list(params.values())
+        return vals[-1] if vals else ''
+
     tmpl_subtype = _subtype(key, wtel)
     if ((tmpl_subtype == 'כו"ק')or (tmpl_subtype == 'קו"כ')
             or (tmpl_subtype== 'מ:כו"ק כתיב מילה חדה וקרי תרתין מילין')
@@ -248,11 +350,11 @@ def wtel_to_str(wtel,caller=""):  # returns a TEX string
     elif(tmpl_subtype=='פרשה-מרכז'):
         text=wtel['tmpl'][1][0][6:]
         return text
-    elif((wtel.has_key('custom_tag'))and(wtel['custom_tag'][-9:]=='צורת השיר')): #TODO: No documentation. Need to play with versification and tabular
+    elif(('custom_tag' in wtel) and (wtel['custom_tag'][-9:]=='צורת השיר')): #TODO: No documentation. Need to play with versification and tabular
         return " "
     else:
-        print(wtel)
-        return
+        print("Unknown template:", wtel)
+        return ""  # Return empty string instead of None
 
 def gimatria(heb):
     MISPAR_HECHRACHI = { # From here: https://github.com/avi-perl/Hebrew/blob/master/hebrew/gematria.py
@@ -435,9 +537,53 @@ def output_to_tex(sec_name):
     \\setlength{\\parindent}{0pt}    
     \\beginnumbering
     """
-    #sec_name = 'Ruth'
-    # inpath = f'mam-json/MAM-{sec_name}.json'
-    inpath = f'/Users/ephraimmeiri/gitEtc/MAM-parsed/plain/{sec_name}.json'
+    # Book name mapping from common names to new format filenames
+    BOOK_MAP = {
+        'Genesis': 'A1-Genesis',
+        'Exodus': 'A2-Exodus',
+        'Leviticus': 'A3-Levit',
+        'Numbers': 'A4-Numbers',
+        'Deuteronomy': 'A5-Deuter',
+        'Joshua': 'B1-Joshua',
+        'Judges': 'B2-Judges',
+        'Samuel': 'BA-Samuel',
+        'Kings': 'BC-Kings',
+        'Isaiah': 'C1-Isaiah',
+        'Jeremiah': 'C2-Jeremiah',
+        'Ezekiel': 'C3-Ezekiel',
+        'The-12': 'CA-The-12-Minor-Prophets',
+        'Psalms': 'D1-Psalms',
+        'Proverbs': 'D2-Proverbs',
+        'Job': 'D3-Job',
+        'Song': 'E1-Song of Songs',
+        'Ruth': 'E2-Ruth',
+        'Lamentations': 'E3-Lamentations',
+        'Ecclesiastes': 'E4-Ecclesiastes',
+        'Esther': 'E5-Esther',
+        'Daniel': 'F1-Daniel',
+        'Ezra': 'FA-Ezra-Nexemiah',
+        'Chronicles': 'FC-Chronicles',
+    }
+
+    # Try to find the MAM-parsed data in multiple locations
+    mam_data_paths = [
+        '/tmp/MAM-parsed/plain',
+        '/Users/ephraimmeiri/gitEtc/MAM-parsed/plain',
+        './MAM-parsed/plain',
+    ]
+
+    mam_data_dir = None
+    for path in mam_data_paths:
+        if os.path.exists(path):
+            mam_data_dir = path
+            break
+
+    if mam_data_dir is None:
+        raise FileNotFoundError("Could not find MAM-parsed data. Please clone https://github.com/bdenckla/MAM-parsed")
+
+    # Get the correct filename
+    file_name = BOOK_MAP.get(sec_name, sec_name)
+    inpath = os.path.join(mam_data_dir, f'{file_name}.json')
     with open(inpath, encoding='utf-8') as fpi:
         sec = json.load(fpi)
     # chapent: chaptered entity (book or sub-book)
@@ -500,11 +646,12 @@ def output_to_tex(sec_name):
                     if(_rsubtype(wikitext_el)=="מ:ירושלם"):
                         text= text[:-2]
                         skipping=True
-                    output =wtel_to_str(wikitext_el)
-                    if(type(output) is None):
-                        print("ERR!")
+                    output = wtel_to_str(wikitext_el)
+                    if output is None:
+                        print(f"ERR! None output for: {wikitext_el}")
+                        output = ""  # Use empty string if None
                     if(_rsubtype(wikitext_el)=="אתנח הפוך"):
-                        text+= output
+                        text += output
                     else:
                         text += output
                 if(sec_name in ["Psalms","Job","Proverbs"]):
@@ -528,15 +675,19 @@ def output_to_tex(sec_name):
     text= text.replace('ל1','ל\\textsubscript{1}')
     text= text.replace('ל2','ל\\textsubscript{2}')
 
-    if sec_name == "Psalms":
-        text = psalms_postprocess(text)
-    elif sec_name == "Job":
-        text = job_postprocessing(text)
-    outpath=""
-    if using_ednotes:
-        outpath = f'out/MAM-{sec_name}-tex.tex'
-    else:
-        outpath = f'out/MAM-{sec_name}-tex_noNotes1.tex'
+    # Apply column marker post-processing if enabled
+    if use_column_markers:
+        if sec_name == "Psalms":
+            text = psalms_postprocess(text)
+        elif sec_name == "Job":
+            text = job_postprocessing(text)
+    # Generate filename based on settings
+    suffix = ""
+    if not using_ednotes:
+        suffix += "_noNotes"
+    if not use_column_markers:
+        suffix += "_noColumns"
+    outpath = f'out/MAM-{sec_name}{suffix}.tex'
     with _openw(outpath) as fpo:
         fpo.write(text)
     return outpath
@@ -564,8 +715,41 @@ def tex_to_pdf(tex_file):
     return os.path.join(dir_path, file_name + '.pdf')
 
 def main():
-    #    output_to_tex('Ruth')
-    tex_to_pdf(output_to_tex('Jeremiah'))
+    """Main function to generate TEX files with different settings."""
+    global using_ednotes, use_column_markers
+
+    # Test with a small book first (Ruth)
+    test_books = ['Ruth', 'Psalms']
+
+    for book in test_books:
+        print(f"\n{'='*60}")
+        print(f"Processing {book}")
+        print(f"{'='*60}")
+
+        # Generate with notes and column markers
+        print(f"\nGenerating {book} with notes and column markers...")
+        using_ednotes = True
+        use_column_markers = True
+        try:
+            tex_file = output_to_tex(book)
+            print(f"Generated: {tex_file}")
+        except Exception as e:
+            print(f"Error generating with notes: {e}")
+            import traceback
+            traceback.print_exc()
+
+        # Generate without notes
+        print(f"\nGenerating {book} without notes...")
+        using_ednotes = False
+        use_column_markers = True
+        try:
+            tex_file = output_to_tex(book)
+            print(f"Generated: {tex_file}")
+        except Exception as e:
+            print(f"Error generating without notes: {e}")
+            import traceback
+            traceback.print_exc()
+
 if __name__ == "__main__":
     main()
 
