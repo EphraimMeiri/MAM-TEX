@@ -13,6 +13,7 @@ _PSV_PSN_CATEGORIES = {
     str('תתת'): '2 (post-chapter)'
 }
 
+using_ednotes= False
 def _openw(path, **kwargs):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     return open(path, 'w', encoding='utf-8', **kwargs)
@@ -145,29 +146,37 @@ def wtel_to_str(wtel,caller=""):  # returns a TEX string
     elif (tmpl_subtype == "נוסח") and (caller==""):
         lemma=""
         for ent in wtel['tmpl'][1]:
-            lemma+= wtel_to_str(ent,"lemma")
+            output = wtel_to_str(ent,"lemma")
+            if output:
+                lemma += output
+            else:
+                print("No output for lemma",ent)
+            # lemma += wtel_to_str(ent,"lemma")
         # lemma = wtel_to_str(wtel['tmpl'][1][0],"lemma")
         # Concatenation concerns are naught, not a relevant performance factor at this scale. I think.
-        text = "\edtext{" + lemma + "}{"
-        note_contents = ""
-        if lemma == r'\newline\hspace*{.5em}' or lemma=="{\\hfill}" or lemma=="{\\hspace{1em}":
-            note_contents+= "\\lemma{*}"
-        elif "\\kri" in lemma:
-            note_contents+= "\\lemma{כ/ק*}"
-        note_contents += "\\vart{"
-        notfirst = False
-        for arg in wtel['tmpl'][2:]:
-            if (notfirst):
-                note_contents += " | "
-            else:
-                notfirst = True
-            if isinstance(arg, str):
-                note_contents += arg
-            else:
-                for arg_wtel in arg:
-                    note_contents += wtel_to_str(arg_wtel,"נוסח")
-        text += note_contents + "}}\u200F"
-        return text
+        if using_ednotes:
+            text = "\edtext{" + lemma + "}{"
+            note_contents = ""
+            if lemma == r'\newline\hspace*{.5em}' or lemma=="{\\hfill}" or lemma=="{\\hspace{1em}":
+                note_contents+= "\\lemma{*}"
+            elif "\\kri" in lemma:
+                note_contents+= "\\lemma{כ{.5em}ק*}"
+            note_contents += "\\vart{"
+            notfirst = False
+            for arg in wtel['tmpl'][2:]:
+                if (notfirst):
+                    note_contents += " | "
+                else:
+                    notfirst = True
+                if isinstance(arg, str):
+                    note_contents += arg
+                else:
+                    for arg_wtel in arg:
+                        note_contents += wtel_to_str(arg_wtel,"נוסח")
+            text += note_contents + "}}\u200F"
+            return text
+        else:
+            return lemma
 
 
     elif (tmpl_subtype == "מ:קמץ"):
@@ -227,35 +236,15 @@ def wtel_to_str(wtel,caller=""):  # returns a TEX string
         return "֪"
     elif(tmpl_subtype=='מ:מקף אפור'):
         return " " #TODO: Here we break with miqra's decision to add a makaf where it should be there by virtue of morphology
-    elif(tmpl_subtype=="ר0"):#TODO: For HTML I think it's best to maintian the tags as is
+    elif(tmpl_subtype== "ר0"):#TODO: For HTML I think it's best to maintian the tags as is
         return r'\hspace{1em}'
+        # return "{\\hfill}"
     elif(tmpl_subtype=="ר1"):
         return "{\\hfill}"
     elif(tmpl_subtype== "ר2" or tmpl_subtype=="ר3"):
         return r'\newline\hspace*{.5em}'
     elif(tmpl_subtype=='נוסח') and (caller!=""):
-            keys = tuple(wtel.keys())
-            key = keys[0]
-            if (_subtype(key, wtel) != "נוסח"):
-                return ""
-            lemma = "<b>" + wtel_to_str(wtel['tmpl'][1][0],"נוסח")+ "</b>- "
-            note_contents = ""
-            notfirst=False
-            for arg in wtel['tmpl'][2:]:
-                if(notfirst):
-                    note_contents += " | "
-                else:
-                    notfirst=True
-                if isinstance(arg, str) or isinstance(arg, dict):
-                    note_contents += " ## " + wtel_to_str(arg,"נוסח")
-                else:
-                    for arg_wtel in arg:
-                        if (type(arg_wtel) == str):
-                            note_contents += arg_wtel
-                        else:
-                            note_contents += wtel_to_str(arg_wtel)
-
-            return "{הערה בתוך הערה}"+lemma+note_contents
+            return wtel_to_str(wtel['tmpl'][1][0],"נוסח")
     elif(tmpl_subtype=='פרשה-מרכז'):
         text=wtel['tmpl'][1][0][6:]
         return text
@@ -310,23 +299,120 @@ def get_full_loc(cp):
     else:
         locs=cp[0]['tmpl']
     return locs[1][0] +" "+locs[2][0]+" "+locs[3][0]
+
+def count_lines(text):
+    newline = r'\newline\hspace*{.5em}'
+    return text.count(newline) + text.count("\\par")
+
+
+import re
+perek_pattern = r'\\pstart\[\\subsection\*\{\\textcolor\{red\}\{פרק\s([א-ת]{1,3})\}\}\]'
+passuk_pattern = r'\{\\loc\{ ([א-ת]{1,3})\}~\}‏'
+newline = r'\newline\hspace*{.5em}'
+space = r'{\hfill}'
+s_space = "\\hspace{1em}"
+spaces = [newline, space, s_space]
+all_whitespace = r'(\\newline\\hspace\*\{\.5em\})|(\{\\hfill\})|(\\hspace\{1em\})'
+def emet_postprocess(full_text,non_header_perakim=None,bi_header_perakim=None):
+    mod2 = []
+    perakim = re.split(perek_pattern, full_text)
+    mod2.append(perakim[0])
+    perakim = perakim[1:]
+    for pi in range(len(perakim))[::2]:
+        perek = perakim[pi]
+        pesukim = re.split(passuk_pattern, perakim[pi + 1])[1:]
+        mod2.append('\\pstart[\\subsection*{\\textcolor{red}{פרק ' + perek + '}}]')
+        for vi in range(1, len(pesukim))[::2]:
+            passuk = pesukim[vi - 1]
+            v_text = pesukim[vi]
+            patterns = re.split(all_whitespace, v_text)
+            if patterns:
+                text = [s for s in patterns if s]
+                patterns = [(p, i) for i, p in enumerate(text) if p in spaces]
+                if passuk == "א" and perek not in non_header_perakim:
+                    for i, p in enumerate(patterns):
+                        if i == len(patterns)-1 and len(patterns)%2==1:
+                            print(f"Leaving {p[0]} @ {perek}:{passuk}")
+                        elif i % 2 == 0:
+                            text[p[1]] = newline
+                        else:
+                            text[p[1]] = space
+                else:
+                    for i, p in enumerate(patterns):
+                        if i == len(patterns)-1 and len(patterns)%2==0:
+                            print(f"Leaving {p[0]} @ {perek}:{passuk}")
+                        elif i % 2 == 1:
+                            text[p[1]] = newline
+                        else:
+                            text[p[1]] = space
+                mod2.append('\n{\\loc{ ' + passuk + '}~}‏' + "".join(text))
+            else:
+                mod2.append('\n{\\loc{ ' + passuk + '}~}‏' + v_text)
+    modified_text = "".join(mod2)
+    return modified_text
+def psalms_postprocess(full_text):
+    non_header_perakim = "א ב י לג מג עא צא צג צד צה צו צז צט קד קה קז קיד קטו קטז קיז קיח קיט קלו קלז".split()
+    bi_header_perakim = "ג ה ו ח ט יב כב  קל".split
+    modified_text= emet_postprocess(full_text,non_header_perakim,bi_header_perakim)
+    mod3 = []
+    perakim = re.split(perek_pattern, modified_text)
+    mod3.append(perakim[0])
+    perakim = perakim[1:]
+    for pi in range(len(perakim))[::2]:
+        mod3.append('\\pstart[\\subsection*{\\textcolor{red}{פרק ' + perakim[pi] + '}}]\\label{פרק '+perakim[pi]+'}')
+        if len(perakim) > (pi + 2):
+            count = count_lines(perakim[pi + 1])
+            next_count = count_lines(perakim[pi + 3])
+            if (pi ==0 or "\\ledpb" in perakim[pi - 1]) and ((count + next_count < 25)or(count>27 and (count-27)+next_count<25)):
+                print("Joining "+perakim[pi] + " and " + perakim[pi + 2])
+                perakim[pi + 1] = perakim[pi + 1].replace("\\ledpb", "")
+        mod3.append(perakim[pi + 1])
+    return "".join(mod3)
+def job_postprocessing(full_text):
+    non_header_perakim = "ב ה ז י יג יד יז כד ל לא לג לז לט מא".split()
+    modified_text= emet_postprocess(full_text,non_header_perakim)
+    mod3 = []
+    perakim = re.split(perek_pattern, modified_text)
+    mod3.append(perakim[0])
+    perakim = perakim[1:]
+    print(perakim[0],perakim[1],perakim[2],perakim[3])
+    print(perakim[1].count("\\par"),perakim[3].count("\\par"))
+    perakim[1] = perakim[1].replace("\\par"," ").replace("\n\n","\n")
+    perakim[3] = perakim[3].replace("\\par"," ").replace("\n\n","\n")
+    print(perakim[1].count("\\par"),perakim[3].count("\\par"))
+    ending = perakim[-1].split("{\\loc{ ז}~}")
+    story = "\\vspace{5mm}\\par" + "{\\loc{ ז}~}" + ending[1].replace("\\par"," ").replace("\n\n","\n")
+    ending[1] = story
+    perakim[-1] = "".join(ending)
+    for pi in range(len(perakim))[::2]:
+        perek = perakim[pi]
+        mod3.append('\\pstart[\\subsection*{\\textcolor{red}{פרק ' + perek + '}}]')
+        if pi+2<len(perakim) and perakim[pi+2] in non_header_perakim:
+            print("Non-header perek: " + perek)
+            perakim[pi + 1] = perakim[pi + 1].replace("\\ledpb","")
+        mod3.append(perakim[pi + 1])
+    return "".join(mod3)
+
 def output_to_tex(sec_name):
-    text = """\\documentclass{article}
+    text = """\\documentclass[12pt]{article}
     \\renewcommand{\\baselinestretch}{1.25}
     \\usepackage[
-        paperwidth=4.25in,
-        paperheight=6.875in,
+        paperwidth= 5.5in,
+        paperheight= 8.5in,
+%        paperwidth=4.25in,
+%        paperheight=6.875in,
         top=0.5in,
         bottom= .75in
         ]{geometry}
     \\usepackage{titlesec}
     \\usepackage{polyglossia}
+    \\usepackage{xcolor}
 
     \\usepackage[series={A,B},noend,noeledsec,nofamiliar]{reledmac} 
     \\setdefaultlanguage[numerals=arabic]{hebrew}
     \\newfontfamily\hebrewfont[Script=Hebrew]{Taamey D}
     \\newcommand{\\vart}[1]{\\Bfootnote{#1}}	% Macro to make adding notes a bit quicker.
-    \\newcommand{\\kri}[1]{\\ledsidenote{\\tiny{#1}}}	% Macro to make adding notes a bit quicker.
+    \\newcommand{\\kri}[1]{\\ledsidenote{\\small{#1}}}	% Macro to make adding notes a bit quicker.
     \\newcommand{\\loc}[1]{\\textsuperscript{\locf{#1}}}
     %\\Xarrangement[B]{paragraph}
     
@@ -336,13 +422,13 @@ def output_to_tex(sec_name):
     \\newcommand{\\rightText}[1]{\\RaggedLeft#1}
     \\newcommand{\\leftText}[1]{\\RaggedRight#1}
     \\titleformat{\\section}[hang]{\\normalfont\\Large\\bfseries}{\\thesection}{1em}{}
-    \\titlespacing*{\\section}{0pt}{2ex plus 1ex minus .2ex}{2.3ex plus .2ex}
-    \\titlespacing*{\\section}{0pt}{2ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+    \\titlespacing*{\\section}{0pt}{0pt}{0pt}
+    \\titlespacing*{\\subsection}{0pt}{-\\parskip}{0pt}
     \\Xnotefontsize[B]{\\tiny}
-    
+    	
     \\newfontfamily\\locf[Script=Hebrew]{Aharoni}
-    \\firstlinenum{1}
-    \\linenumincrement{2}
+    \\firstlinenum{2000}
+    \\linenumincrement{2000}    
     \\lineation{page}
     \\Xhangindent[B]{1em}
     \\begin{document}
@@ -350,23 +436,46 @@ def output_to_tex(sec_name):
     \\beginnumbering
     """
     #sec_name = 'Ruth'
-    inpath = f'mam-json/MAM-{sec_name}.json'
+    # inpath = f'mam-json/MAM-{sec_name}.json'
+    inpath = f'/Users/ephraimmeiri/gitEtc/MAM-parsed/plain/{sec_name}.json'
     with open(inpath, encoding='utf-8') as fpi:
         sec = json.load(fpi)
     # chapent: chaptered entity (book or sub-book)
     first_flag= False
-    for chapent in sec['body']:
+    for book in sec['book39s']: # Chnage for new (plain) format
         if first_flag:
             text+='\n\pend'
         else:
             first_flag=True
-        text += '\n[\subsection*{' + (chapent['book_name']) + "}]\n"
-        if(sec_name!="Psalms"):
+        text += '\n\subsection*{' + (book['book24_name']) + "}\n"
+        if(sec_name=="Psalms"):
+            text+= """\\pstart[]על פי נוסח מקרא ע׳׳פ המסורה \\newline 
+                        בעיצוב ב׳ טורי
+                        \\newline
+                        \\newline ספר א {\\hfill} \\textcolor{red}{פרק א}{\\hspace{1em}} עמוד \\pageref{פרק א}
+                        \\newline {\\small {\\locf{חתימה:}} ‏בָּ֘ר֤וּךְ יְהֹוָ֨ה | אֱלֹ֘הֵ֤י יִשְׂרָאֵ֗ל מֵֽ֭הָעוֹלָם וְעַ֥ד הָעוֹלָ֗ם אָ֘מֵ֥ן | וְאָמֵֽן׃}
+                        \\newline
+                        \\newline ספר ב {\\hfill} \\textcolor{red}{פרק מב}{\\hspace{1em}} עמוד \\pageref{פרק מב}
+                        \\newline {\\small {\\locf{חתימה:}}
+‏בָּר֤וּךְ | יְהֹוָ֣ה אֱ֭לֹהִים אֱלֹהֵ֣י יִשְׂרָאֵ֑ל עֹשֵׂ֖ה נִפְלָא֣וֹת לְבַדּֽוֹ׃                        \\newline
+‏וּבָר֤וּךְ | שֵׁ֥ם כְּבוֹד֗וֹ לְע֫וֹלָ֥ם וְיִמָּלֵ֣א כְ֭בוֹדוֹ אֶת־כֹּ֥ל הָאָ֗רֶץ אָ֘מֵ֥ן | וְאָמֵֽן׃                        \\newline
+                         ‏כׇּלּ֥וּ תְפִלּ֑וֹת דָּ֝וִ֗ד בֶּן־יִשָֽׁי׃}
+                        \\newline
+                        \\newline ספר ג {\\hfill} \\textcolor{red}{פרק עג}{\\hspace{1em}} עמוד \\pageref{פרק עג}
+                        \\newline {\\small {\\locf{חתימה:}} ‏בָּר֖וּךְ יְהֹוָ֥ה לְעוֹלָ֗ם אָ֘מֵ֥ן | וְאָמֵֽן׃}
+                        \\newline
+                        \\newline ספר ד {\\hfill} \\textcolor{red}{פרק צ}{\\hspace{1em}} עמוד \\pageref{פרק צ}
+                        \\newline {\\small {\\locf{חתימה:}} ‏בָּ֤רֽוּךְ יְהֹוָ֨ה אֱלֹהֵ֪י יִשְׂרָאֵ֡ל מִן־הָ֤עוֹלָ֨ם | וְעַ֬ד הָעוֹלָ֗ם וְאָמַ֖ר כׇּל־הָעָ֥ם אָמֵ֗ן הַֽלְלוּ־יָֽהּ׃}
+                        \\newline
+                        \\newline ספר ה {\\hfill} \\textcolor{red}{פרק קז}{\\hspace{1em}} עמוד \\pageref{פרק קז}
+                        
+                        \\pend\\ledpb"""
+        else:
             text+= "\\pstart"
-        for num, chapter in chapent['chapters'].items():
-            if(sec_name=="Psalms"):
+        for num, chapter in book['chapters'].items():
+            if(sec_name in ["Psalms","Job","Proverbs"]):
                 # Add perek as header on new page
-                text += "\n\\pstart[\\subsection*{"+ "פרק " + num  + "}]"
+                text += "\n\\pstart[\\subsection*{\\textcolor{red}{"+"פרק " + num + "}}]"
             else:
                 text += "\n\\ledsidenote{{\loc{"+ num +" פרק" +"}}}" #Need to flip order bec the sidienote seems to use a LTR space
             for pseudoverse in chapter.items():
@@ -377,7 +486,7 @@ def output_to_tex(sec_name):
                 minirow = _MINIROW(*psv_contents)
                 if(not (len(minirow.CP)>0)):
                     continue
-                print(get_full_loc(minirow.CP))
+                # print(get_full_loc(minirow.CP))
                 if loc_to_line(minirow.D) == '13.3':
                     print("incoming!")
                 skipping=False
@@ -398,11 +507,11 @@ def output_to_tex(sec_name):
                         text+= output
                     else:
                         text += output
-                if(sec_name=="Psalms"):
+                if(sec_name in ["Psalms","Job","Proverbs"]):
                     text += "\\par"
-            if(sec_name=="Psalms"):
+            if(sec_name in ["Psalms","Job","Proverbs"]):
                 text += "\\pend\n\\ledpb"
-    if(sec_name!="Psalms"):
+    if(sec_name not in ["Psalms","Job","Proverbs"]):
         text+= "\\pend"
     text += '''
     \\endnumbering
@@ -419,7 +528,15 @@ def output_to_tex(sec_name):
     text= text.replace('ל1','ל\\textsubscript{1}')
     text= text.replace('ל2','ל\\textsubscript{2}')
 
-    outpath = f'out/MAM-{sec_name}-tex.tex'
+    if sec_name == "Psalms":
+        text = psalms_postprocess(text)
+    elif sec_name == "Job":
+        text = job_postprocessing(text)
+    outpath=""
+    if using_ednotes:
+        outpath = f'out/MAM-{sec_name}-tex.tex'
+    else:
+        outpath = f'out/MAM-{sec_name}-tex_noNotes1.tex'
     with _openw(outpath) as fpo:
         fpo.write(text)
     return outpath
@@ -448,7 +565,7 @@ def tex_to_pdf(tex_file):
 
 def main():
     #    output_to_tex('Ruth')
-    tex_to_pdf(output_to_tex('Psalms'))
+    tex_to_pdf(output_to_tex('Jeremiah'))
 if __name__ == "__main__":
     main()
 
