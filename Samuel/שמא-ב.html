@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>שמ&quot;א פרק ב</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #fffdfa; color: #1f1b18; font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif; }
+.page-head { max-width: 60rem; margin: 0 auto; padding: 1.5rem 2rem .25rem; text-align: center; border-bottom: 1px solid #d8d0c8; }
+.eyebrow { color: #6f635c; font-size: .85rem; }
+.page-head h1 { margin: .25rem 0 .75rem; color: #8b1d1d; font-size: 1.6rem; }
+.chapter { max-width: 72rem; margin: 0 auto; padding: 1.5rem 5em 3rem; }
+.chapter.emet { max-width: 88rem; padding-left: 3em; padding-right: 3em; }
+.chapter h2 { color: #8b1d1d; text-align: center; font-size: 1.15rem; margin: 0 0 1rem; }
+.ws-margins { margin-left: 8em; margin-right: 6em; }
+.chapter.emet .ws-margins { margin-left: 5em; margin-right: 4em; }
+.vnum-copy { font-size: 0; line-height: 0; }
+.visual-only { user-select: none; -webkit-user-select: none; }
+.suspended-letter { font-size: .8em; vertical-align: .5em; }
+.dotted-letter { position: relative; }
+.dotted-letter::before {
+  content: "·"; position: absolute; top: -.55em; left: 50%;
+  transform: translateX(-50%); font-size: .8em; line-height: 1;
+}
+.mid-pasuq-gap { display: inline-block; width: 2em; }
+.kq-swap {
+  position: relative;
+  display: inline-block;
+}
+.kq-ghost {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 0;
+  color: #b9a89a;
+  opacity: .55;
+  pointer-events: none;
+  user-select: none;
+}
+.kq-qere {
+  color: #1e6fb8;
+  position: relative;
+}
+.parashah-banner {
+  text-align: center; color: #8b1d1d;
+  font-weight: 700; margin: 1.25rem 0 .5rem;
+  font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif;
+}
+.ws-text {
+  font-family: "Taamey Frank CLM", "Keter YG", "SBL Hebrew", "Ezra SIL SR", "Ezra SIL", "Arial Unicode MS", serif;
+  font-size: 23pt;
+  line-height: 150%;
+}
+.ws-text p { text-align: justify; margin: 0; }
+.chapter-num { color: #8b1d1d; font-weight: 700; }
+/* Note marks: tiny superscript markers next to the verse */
+.note { position: relative; }
+.note-mark {
+  display: none;
+  font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif;
+  font-size: .42em; color: #8b1d1d; vertical-align: super;
+  margin: 0 .12em; cursor: pointer; user-select: none;
+}
+.note-body { display: none; }
+.note-body .lemma,
+.note-body .hebw {
+  font-family: "Taamey Frank CLM", "Keter YG", "SBL Hebrew", "Ezra SIL SR", serif;
+}
+.note-body .lemma { font-weight: 700; color: #1f1b18; }
+.note-body .np { display: block; margin: .2em 0; }
+.note-body .np.head {
+  text-align: center; margin-bottom: .35em;
+  border-bottom: 1px solid #e6dfd7; padding-bottom: .2em;
+}
+.note-body .np.head b { color: #8b1d1d; }
+.note-body .np.compact { display: block; margin: 0; }
+.note-body .np.compact b { color: #8b1d1d; }
+body.notes-tooltip .note-mark,
+body.notes-shoulder .note-mark,
+body.notes-footer .note-mark { display: inline; }
+
+/* Tooltip mode: popover on hover/focus */
+body.notes-tooltip .note:hover .note-body,
+body.notes-tooltip .note:focus-within .note-body {
+  display: block; position: absolute; z-index: 20;
+  top: 1.4em; right: 0; min-width: 22em; max-width: 32em;
+  padding: .55rem .75rem; font-size: 1rem; line-height: 1.4;
+  font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif;
+  color: #1f1b18; background: #fffdfa;
+  border: 1px solid #d8d0c8; border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+
+/* Shoulder mode: notes float into the left margin */
+body.notes-shoulder .note-body {
+  display: block; position: relative;
+  float: left; clear: left;
+  width: 16em; margin-left: -18em; margin-top: .25em;
+  padding: .4rem .55rem; font-size: .85rem; line-height: 1.35;
+  font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif;
+  color: #1f1b18; background: #f9f5ee;
+  border: 1px solid #e6dfd7; border-radius: 3px;
+  cursor: pointer;
+}
+body.notes-shoulder .ws-margins { margin-left: 20em; }
+body.notes-shoulder .note-body::after {
+  content: "▾"; position: absolute; top: .2rem; left: .35rem;
+  color: #b9a89a; font-size: .9em; pointer-events: none;
+  transition: transform .12s ease-out;
+}
+body.notes-shoulder .note.collapsed .note-body::after {
+  transform: rotate(-90deg);
+}
+body.notes-shoulder .note.collapsed .note-body .np:not(.head):not(.compact) {
+  display: none;
+}
+body.notes-shoulder .note-body {
+  max-height: 18em; overflow: auto;
+}
+body.notes-shoulder .note.compact-note .note-body::after { display: none; }
+body.notes-shoulder .note.compact-note .note-body {
+  cursor: default; padding-left: .55rem;
+}
+
+/* Footer popup mode: clicking a mark fills #note-pane */
+.note-pane {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+  max-height: 35vh; overflow: auto; padding: .9rem 1.5rem;
+  background: #fffdfa; border-top: 1px solid #d8d0c8;
+  box-shadow: 0 -4px 14px rgba(0,0,0,.08);
+  font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif;
+  font-size: 1rem; line-height: 1.45; color: #1f1b18;
+  transform: translateY(100%); transition: transform .15s ease-out;
+}
+#note-pane-body { position: relative; }
+.note-pane.open { transform: translateY(0); }
+.note-pane b { color: #8b1d1d; }
+.note-pane .close {
+  position: absolute; top: .5rem; left: .75rem;
+  background: transparent; border: 0; cursor: pointer;
+  color: #6f635c; font-size: 1.1rem;
+}
+
+.note-toggle {
+  position: fixed; top: .75rem; left: .75rem; z-index: 40;
+  display: flex; flex-direction: column; gap: .15rem;
+  background: #fff; border: 1px solid #d8d0c8; border-radius: 4px;
+  padding: .35rem .55rem; font-size: .8rem;
+  font-family: -apple-system, "Segoe UI", "Arial Hebrew", sans-serif;
+}
+.note-toggle legend {
+  font-weight: 700; color: #8b1d1d; padding: 0 .25em;
+  font-size: .75rem;
+}
+.note-toggle label {
+  display: flex; gap: .35rem; align-items: center;
+  cursor: pointer; padding: .05rem 0;
+}
+.note-toggle input[type="radio"] { margin: 0; }
+.chapter-nav {
+  display: flex; justify-content: space-between; gap: 1rem;
+  max-width: 60rem; margin: .25rem auto; padding: .5rem 2rem;
+  font-size: .9rem;
+}
+.chapter-nav a {
+  color: #8b1d1d; text-decoration: none;
+  padding: .35rem .7rem; border: 1px solid #d8d0c8; border-radius: 4px;
+  background: #fff;
+}
+.chapter-nav a:hover { background: #f4efe8; }
+.chapter-nav a.disabled {
+  color: #b9b1a8; pointer-events: none; background: transparent;
+}
+.chapter-nav .up { flex: 0 0 auto; text-align: center; }
+.chapter-nav .prev { flex: 1; text-align: right; }
+.chapter-nav .next { flex: 1; text-align: left; }
+@media (max-width: 820px) {
+  .chapter { padding-inline: 1.5rem; }
+  .chapter > div { margin-left: 1.5em; margin-right: 1.5em; }
+  .ws-text { font-size: 18pt; }
+}
+</style>
+</head>
+<body>
+<fieldset class="note-toggle" id="note-toggle">
+  <legend>הערות</legend>
+  <label><input type="radio" name="notes-mode" value="off"> מוסתרות</label>
+  <label><input type="radio" name="notes-mode" value="tooltip"> ריחוף</label>
+  <label><input type="radio" name="notes-mode" value="shoulder"> שוליים</label>
+  <label><input type="radio" name="notes-mode" value="footer"> חלון תחתון</label>
+</fieldset>
+<aside id="note-pane" class="note-pane" aria-hidden="true">
+  <button class="close" type="button" aria-label="סגור">×</button>
+  <div id="note-pane-body"></div>
+</aside>
+<nav class="chapter-nav"><a class="prev" href="../Samuel/שמא-א.html">→ שמ&quot;א א</a><a class="up" href="../Samuel/index.html">ספר שמואל</a><a class="up" href="../index.html">תוכן הענינים</a><a class="next" href="../Samuel/שמא-ג.html">שמ&quot;א ג ←</a></nav>
+<header class="page-head"><div class="eyebrow">מקרא על פי המסורה</div><h1>ספר שמואל</h1></header>
+<section class="chapter" id="ch-ב">
+<h2>פרק ב</h2>
+<div class="ws-margins"><div class="ws-text" lang="hbo" dir="rtl">
+<p>
+<br><span class="parashah-mark closed" style="white-space: nowrap; float: left; margin-left: -3em;"><span class="visual-only" style="color: #800000;">{ס}</span></span>　　　<br>
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span class="visual-only" style="float: right; margin-right: -3.2em; text-align: left; width: 3em;"><span class="chapter-num">ב</span></span><span style="font-size: 0.6em;">א</span></span></span><span id="v-ב-א"></span><span class="vnum-copy">א </span>וַתִּתְפַּלֵּ֤ל חַנָּה֙ וַתֹּאמַ֔ר עָלַ֤ץ לִבִּי֙ בַּֽיהֹוָ֔ה רָ֥מָה קַרְנִ֖י בַּֽיהֹוָ֑ה רָ֤חַב פִּי֙ עַל־א֣וֹיְבַ֔י כִּ֥י שָׂמַ֖חְתִּי בִּישׁוּעָתֶֽךָ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ב</span></span></span><span id="v-ב-ב"></span><span class="vnum-copy">ב </span>אֵין־קָד֥וֹשׁ כַּיהֹוָ֖ה כִּ֣י אֵ֣ין בִּלְתֶּ֑ךָ וְאֵ֥ין צ֖וּר כֵּאלֹהֵֽינוּ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ג</span></span></span><span id="v-ב-ג"></span><span class="vnum-copy">ג </span>אַל־תַּרְבּ֤וּ תְדַבְּרוּ֙ גְּבֹהָ֣ה גְבֹהָ֔ה יֵצֵ֥א עָתָ֖ק מִפִּיכֶ֑ם כִּ֣י אֵ֤ל דֵּעוֹת֙ יְהֹוָ֔ה (ולא)<span class="note ketiv_qere compact-note" tabindex="0"><sup class="note-mark">קק</sup><span class="note-body"><span class="np compact"><b>קרי/כתיב</b> · <span class="lemma" lang="hbo">(ולא) וְל֥וֹ</span></span></span></span> נִתְכְּנ֖וּ עֲלִלֽוֹת׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ד</span></span></span><span id="v-ב-ד"></span><span class="vnum-copy">ד </span>קֶ֥שֶׁת גִּבֹּרִ֖ים חַתִּ֑ים וְנִכְשָׁלִ֖ים אָ֥זְרוּ חָֽיִל׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ה</span></span></span><span id="v-ב-ה"></span><span class="vnum-copy">ה </span>שְׂבֵעִ֤ים בַּלֶּ֙חֶם֙ נִשְׂכָּ֔רוּ וּרְעֵבִ֖ים חָדֵ֑לּוּ עַד־עֲקָרָה֙ יָלְדָ֣ה שִׁבְעָ֔ה וְרַבַּ֥ת בָּנִ֖ים אֻמְלָֽלָה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ו</span></span></span><span id="v-ב-ו"></span><span class="vnum-copy">ו </span>יְהֹוָ֖ה מֵמִ֣ית וּמְחַיֶּ֑ה מוֹרִ֥יד שְׁא֖וֹל וַיָּֽעַל׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ז</span></span></span><span id="v-ב-ז"></span><span class="vnum-copy">ז </span>יְהֹוָ֖ה מוֹרִ֣ישׁ וּמַעֲשִׁ֑יר מַשְׁפִּ֖יל אַף־מְרוֹמֵֽם׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ח</span></span></span><span id="v-ב-ח"></span><span class="vnum-copy">ח </span>מֵקִ֨ים מֵעָפָ֜ר דָּ֗ל מֵֽאַשְׁפֹּת֙ יָרִ֣ים אֶבְי֔וֹן לְהוֹשִׁיב֙ עִם־נְדִיבִ֔ים וְכִסֵּ֥א כָב֖וֹד יַנְחִלֵ֑ם כִּ֤י לַֽיהֹוָה֙ מְצֻ֣קֵי אֶ֔רֶץ וַיָּ֥שֶׁת עֲלֵיהֶ֖ם תֵּבֵֽל׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ט</span></span></span><span id="v-ב-ט"></span><span class="vnum-copy">ט </span>רַגְלֵ֤י חֲסִידָו֙ יִשְׁמֹ֔ר וּרְשָׁעִ֖ים בַּחֹ֣שֶׁךְ יִדָּ֑מּוּ כִּי־לֹ֥א בְכֹ֖חַ יִגְבַּר־אִֽישׁ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">י</span></span></span><span id="v-ב-י"></span><span class="vnum-copy">י </span>יְהֹוָ֞ה יֵחַ֣תּוּ מְרִיבָ֗ו<span class="note ketiv_qere compact-note" tabindex="0"><sup class="note-mark">קק</sup><span class="note-body"><span class="np compact"><b>קרי/כתיב</b> · <span class="lemma" lang="hbo">מְרִיבָ֗ו</span> · <span class="hebw" lang="hbo">מְרִיבָ֗יו</span></span></span></span> עָלָו֙<span class="note ketiv_qere compact-note" tabindex="0"><sup class="note-mark">קק</sup><span class="note-body"><span class="np compact"><b>קרי/כתיב</b> · <span class="lemma" lang="hbo">עָלָו֙</span> · <span class="hebw" lang="hbo">עָלָיו֙</span></span></span></span> בַּשָּׁמַ֣יִם יַרְעֵ֔ם יְהֹוָ֖ה יָדִ֣ין אַפְסֵי־אָ֑רֶץ וְיִתֶּן־עֹ֣ז לְמַלְכּ֔וֹ וְיָרֵ֖ם קֶ֥רֶן מְשִׁיחֽוֹ׃
+<br><span class="parashah-mark open" style="white-space: nowrap; float: left; margin-left: -3em;"><span class="visual-only" style="color: #800000;">{פ}</span></span>　　<br>
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יא</span></span></span><span id="v-ב-יא"></span><span class="vnum-copy">יא </span>וַיֵּ֧לֶךְ אֶלְקָנָ֛ה הָרָמָ֖תָה עַל־בֵּית֑וֹ וְהַנַּ֗עַר הָיָ֤ה מְשָׁרֵת֙ אֶת־יְהֹוָ֔ה אֶת־פְּנֵ֖י עֵלִ֥י הַכֹּהֵֽן׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יב</span></span></span><span id="v-ב-יב"></span><span class="vnum-copy">יב </span>וּבְנֵ֥י עֵלִ֖י בְּנֵ֣י בְלִיָּ֑עַל לֹ֥א יָדְע֖וּ אֶת־יְהֹוָֽה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יג</span></span></span><span id="v-ב-יג"></span><span class="vnum-copy">יג </span>וּמִשְׁפַּ֥ט הַכֹּהֲנִ֖ים אֶת־הָעָ֑ם כׇּל־אִ֞ישׁ זֹבֵ֣חַ זֶ֗בַח וּבָ֨א נַ֤עַר הַכֹּהֵן֙ כְּבַשֵּׁ֣ל הַבָּשָׂ֔ר וְהַמַּזְלֵ֛ג שְׁלֹ֥שׁ הַשִּׁנַּ֖יִם בְּיָדֽוֹ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יד</span></span></span><span id="v-ב-יד"></span><span class="vnum-copy">יד </span>וְהִכָּ֨ה בַכִּיּ֜וֹר א֣וֹ בַדּ֗וּד א֤וֹ בַקַּלַּ֙חַת֙ א֣וֹ בַפָּר֔וּר כֹּ֚ל אֲשֶׁ֣ר יַעֲלֶ֣ה הַמַּזְלֵ֔ג יִקַּ֥ח הַכֹּהֵ֖ן בּ֑וֹ כָּ֚כָה יַעֲשׂ֣וּ לְכׇל־יִשְׂרָאֵ֔ל הַבָּאִ֥ים שָׁ֖ם בְּשִׁלֹֽה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">טו</span></span></span><span id="v-ב-טו"></span><span class="vnum-copy">טו </span>גַּם֮ בְּטֶ֘רֶם֮ יַקְטִר֣וּן אֶת־הַחֵ֒לֶב֒ וּבָ֣א <small><small><span style="color:Gray;">׀</span></small></small> נַ֣עַר הַכֹּהֵ֗ן וְאָמַר֙ לָאִ֣ישׁ הַזֹּבֵ֔חַ תְּנָ֣ה בָשָׂ֔ר לִצְל֖וֹת לַכֹּהֵ֑ן וְלֹא־יִקַּ֧ח מִמְּךָ֛ בָּשָׂ֥ר מְבֻשָּׁ֖ל כִּ֥י אִם־חָֽי׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">טז</span></span></span><span id="v-ב-טז"></span><span class="vnum-copy">טז </span>וַיֹּ֨אמֶר אֵלָ֜יו הָאִ֗ישׁ קַטֵּ֨ר יַקְטִיר֤וּן כַּיּוֹם֙ הַחֵ֔לֶב וְקַ֨ח־לְךָ֔ כַּאֲשֶׁ֥ר תְּאַוֶּ֖ה נַפְשֶׁ֑ךָ וְאָמַ֥ר <small><small><span style="color:Gray;">׀</span></small></small> (לו)<span class="note ketiv_qere compact-note" tabindex="0"><sup class="note-mark">קק</sup><span class="note-body"><span class="np compact"><b>קרי/כתיב</b> · <span class="lemma" lang="hbo">(לֹא֙) לו</span></span></span></span> כִּ֚י עַתָּ֣ה תִתֵּ֔ן וְאִם־לֹ֖א לָקַ֥חְתִּי בְחׇזְקָֽה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יז</span></span></span><span id="v-ב-יז"></span><span class="vnum-copy">יז </span>וַתְּהִ֨י חַטַּ֧את הַנְּעָרִ֛ים גְּדוֹלָ֥ה מְאֹ֖ד אֶת־פְּנֵ֣י יְהֹוָ֑ה כִּ֤י נִֽאֲצוּ֙ הָאֲנָשִׁ֔ים אֵ֖ת מִנְחַ֥ת יְהֹוָֽה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יח</span></span></span><span id="v-ב-יח"></span><span class="vnum-copy">יח </span>וּשְׁמוּאֵ֕ל מְשָׁרֵ֖ת אֶת־פְּנֵ֣י יְהֹוָ֑ה נַ֕עַר חָג֖וּר אֵפ֥וֹד בָּֽד׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">יט</span></span></span><span id="v-ב-יט"></span><span class="vnum-copy">יט </span>וּמְעִ֤יל קָטֹן֙ תַּעֲשֶׂה־לּ֣וֹ אִמּ֔וֹ וְהַעַלְתָ֥ה ל֖וֹ מִיָּמִ֣ים <small><small><span style="color:Gray;">׀</span></small></small> יָמִ֑ימָה בַּֽעֲלוֹתָהּ֙ אֶת־אִישָׁ֔הּ לִזְבֹּ֖חַ אֶת־זֶ֥בַח הַיָּמִֽים׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כ</span></span></span><span id="v-ב-כ"></span><span class="vnum-copy">כ </span>וּבֵרַ֨ךְ עֵלִ֜י אֶת־אֶלְקָנָ֣ה וְאֶת־אִשְׁתּ֗וֹ וְאָמַר֙ יָשֵׂם֩ יְהֹוָ֨ה לְךָ֥ זֶ֙רַע֙ מִן־הָאִשָּׁ֣ה הַזֹּ֔את תַּ֚חַת הַשְּׁאֵלָ֔ה אֲשֶׁ֥ר שָׁאַ֖ל לַֽיהֹוָ֑ה וְהָלְכ֖וּ לִמְקוֹמֽוֹ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כא</span></span></span><span id="v-ב-כא"></span><span class="vnum-copy">כא </span>כִּֽי־פָקַ֤ד יְהֹוָה֙ אֶת־חַנָּ֔ה וַתַּ֛הַר וַתֵּ֥לֶד שְׁלֹשָֽׁה־בָנִ֖ים וּשְׁתֵּ֣י בָנ֑וֹת וַיִּגְדַּ֛ל הַנַּ֥עַר שְׁמוּאֵ֖ל עִם־יְהֹוָֽה׃
+<br><span class="parashah-mark closed" style="white-space: nowrap; float: left; margin-left: -3em;"><span class="visual-only" style="color: #800000;">{ס}</span></span>　　　<br>
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כב</span></span></span><span id="v-ב-כב"></span><span class="vnum-copy">כב </span>וְעֵלִ֖י זָקֵ֣ן מְאֹ֑ד וְשָׁמַ֗ע אֵת֩ כׇּל־אֲשֶׁ֨ר יַעֲשׂ֤וּן בָּנָיו֙ לְכׇל־יִשְׂרָאֵ֔ל וְאֵ֤ת אֲשֶֽׁר־יִשְׁכְּבוּן֙ אֶת־הַנָּשִׁ֔ים הַצֹּ֣בְא֔וֹת פֶּ֖תַח אֹ֥הֶל מוֹעֵֽד׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כג</span></span></span><span id="v-ב-כג"></span><span class="vnum-copy">כג </span>וַיֹּ֣אמֶר לָהֶ֔ם לָ֥מָּה תַעֲשׂ֖וּן כַּדְּבָרִ֣ים הָאֵ֑לֶּה אֲשֶׁ֨ר אָנֹכִ֤י שֹׁמֵ֙עַ֙ אֶת־דִּבְרֵיכֶ֣ם רָעִ֔ים מֵאֵ֖ת כׇּל־הָעָ֥ם אֵֽלֶּה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כד</span></span></span><span id="v-ב-כד"></span><span class="vnum-copy">כד </span>אַ֖ל בָּנָ֑י כִּ֠י לֽוֹא־טוֹבָ֤ה הַשְּׁמֻעָה֙ אֲשֶׁ֣ר אָנֹכִ֣י שֹׁמֵ֔עַ מַעֲבִרִ֖ים עַם־יְהֹוָֽה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כה</span></span></span><span id="v-ב-כה"></span><span class="vnum-copy">כה </span>אִם־יֶחֱטָ֨א אִ֤ישׁ לְאִישׁ֙ וּפִֽלְﬞל֣וֹ<span class="note nusach compact-note" tabindex="0"><sup class="note-mark">נ</sup><span class="note-body"><span class="np compact"><span class="lemma" lang="hbo">וּפִֽלְﬞל֣וֹ</span> · א=<span class="hebw" lang="hbo">וּפִֽלֲל֣וֹ</span> (חטף)</span></span></span> אֱלֹהִ֔ים וְאִ֤ם לַֽיהֹוָה֙ יֶחֱטָא־אִ֔ישׁ מִ֖י יִתְפַּלֶּל־ל֑וֹ וְלֹ֤א יִשְׁמְעוּ֙ לְק֣וֹל אֲבִיהֶ֔ם כִּֽי־חָפֵ֥ץ יְהֹוָ֖ה לַהֲמִיתָֽם׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כו</span></span></span><span id="v-ב-כו"></span><span class="vnum-copy">כו </span>וְהַנַּ֣עַר שְׁמוּאֵ֔ל הֹלֵ֥ךְ וְגָדֵ֖ל וָט֑וֹב גַּ֚ם עִם־יְהֹוָ֔ה וְגַ֖ם עִם־אֲנָשִֽׁים׃
+<br><span class="parashah-mark open" style="white-space: nowrap; float: left; margin-left: -3em;"><span class="visual-only" style="color: #800000;">{פ}</span></span>　　<br>
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כז</span></span></span><span id="v-ב-כז"></span><span class="vnum-copy">כז </span>וַיָּבֹ֥א אִישׁ־אֱלֹהִ֖ים אֶל־עֵלִ֑י וַיֹּ֣אמֶר אֵלָ֗יו כֹּ֚ה אָמַ֣ר יְהֹוָ֔ה הֲנִגְלֹ֤ה נִגְלֵ֙יתִי֙ אֶל־בֵּ֣ית אָבִ֔יךָ בִּֽהְיוֹתָ֥ם בְּמִצְרַ֖יִם לְבֵ֥ית פַּרְעֹֽה׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כח</span></span></span><span id="v-ב-כח"></span><span class="vnum-copy">כח </span>וּבָחֹ֣ר אֹ֠ת֠וֹ מִכׇּל־שִׁבְטֵ֨י יִשְׂרָאֵ֥ל לִי֙ לְכֹהֵ֔ן לַעֲל֣וֹת עַֽל־מִזְבְּחִ֗י לְהַקְטִ֥יר קְטֹ֛רֶת לָשֵׂ֥את אֵפ֖וֹד לְפָנָ֑י וָֽאֶתְּנָה֙ לְבֵ֣ית אָבִ֔יךָ אֶת־כׇּל־אִשֵּׁ֖י בְּנֵ֥י יִשְׂרָאֵֽל׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">כט</span></span></span><span id="v-ב-כט"></span><span class="vnum-copy">כט </span>לָ֣מָּה תִבְעֲט֗וּ בְּזִבְחִי֙ וּבְמִנְחָתִ֔י אֲשֶׁ֥ר צִוִּ֖יתִי מָע֑וֹן וַתְּכַבֵּ֤ד אֶת־בָּנֶ֙יךָ֙ מִמֶּ֔נִּי לְהַבְרִיאֲכֶ֗ם מֵרֵאשִׁ֛ית כׇּל־מִנְחַ֥ת יִשְׂרָאֵ֖ל לְעַמִּֽי׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">ל</span></span></span><span id="v-ב-ל"></span><span class="vnum-copy">ל </span>לָכֵ֗ן נְאֻם־יְהֹוָה֮ אֱלֹהֵ֣י יִשְׂרָאֵל֒ אָמ֣וֹר אָמַ֔רְתִּי בֵּֽיתְךָ֙ וּבֵ֣ית אָבִ֔יךָ יִתְהַלְּכ֥וּ לְפָנַ֖י עַד־עוֹלָ֑ם וְעַתָּ֤ה נְאֻם־יְהֹוָה֙ חָלִ֣ילָה לִּ֔י כִּֽי־מְכַבְּדַ֥י אֲכַבֵּ֖ד וּבֹזַ֥י יֵקָֽלּוּ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">לא</span></span></span><span id="v-ב-לא"></span><span class="vnum-copy">לא </span>הִנֵּה֙ יָמִ֣ים בָּאִ֔ים וְגָֽדַעְתִּי֙ אֶת־זְרֹ֣עֲךָ֔ וְאֶת־זְרֹ֖עַ בֵּ֣ית אָבִ֑יךָ מִֽהְי֥וֹת זָקֵ֖ן בְּבֵיתֶֽךָ׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">לב</span></span></span><span id="v-ב-לב"></span><span class="vnum-copy">לב </span>וְהִבַּטְתָּ֙ צַ֣ר מָע֔וֹן בְּכֹ֥ל אֲשֶׁר־יֵיטִ֖יב אֶת־יִשְׂרָאֵ֑ל וְלֹא־יִֽהְיֶ֥ה זָקֵ֛ן בְּבֵיתְךָ֖ כׇּל־הַיָּמִֽים׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">לג</span></span></span><span id="v-ב-לג"></span><span class="vnum-copy">לג </span>וְאִ֗ישׁ לֹֽא־אַכְרִ֤ית לְךָ֙ מֵעִ֣ם מִזְבְּחִ֔י לְכַלּ֥וֹת אֶת־עֵינֶ֖יךָ וְלַאֲדִ֣יב אֶת־נַפְשֶׁ֑ךָ וְכׇל־מַרְבִּ֥ית בֵּיתְךָ֖ יָמ֥וּתוּ אֲנָשִֽׁים׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">לד</span></span></span><span id="v-ב-לד"></span><span class="vnum-copy">לד </span>וְזֶה־לְּךָ֣ הָא֗וֹת אֲשֶׁ֤ר יָבֹא֙ אֶל־שְׁנֵ֣י בָנֶ֔יךָ אֶל־חׇפְנִ֖י וּפִֽינְחָ֑ס בְּי֥וֹם אֶחָ֖ד יָמ֥וּתוּ שְׁנֵיהֶֽם׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">לה</span></span></span><span id="v-ב-לה"></span><span class="vnum-copy">לה </span>וַהֲקִימֹתִ֥י לִי֙ כֹּהֵ֣ן נֶאֱמָ֔ן כַּאֲשֶׁ֛ר בִּלְבָבִ֥י וּבְנַפְשִׁ֖י יַעֲשֶׂ֑ה וּבָנִ֤יתִי לוֹ֙ בַּ֣יִת נֶאֱמָ֔ן וְהִתְהַלֵּ֥ךְ לִפְנֵֽי־מְשִׁיחִ֖י כׇּל־הַיָּמִֽים׃
+<span class="visual-only" style="white-space: nowrap; float: left; margin-left: -3em;"><span style="color: #800000;"></span> </span><span class="visual-only" style="white-space: nowrap;"><span style="float: right; clear: right; margin-right: -1em; width: 0; height: 0.5em;"><span style="font-size: 0.6em;">לו</span></span></span><span id="v-ב-לו"></span><span class="vnum-copy">לו </span>וְהָיָ֗ה כׇּל־הַנּוֹתָר֙ בְּבֵ֣יתְךָ֔ יָבוֹא֙ לְהִשְׁתַּחֲוֺ֣ת ל֔וֹ לַאֲג֥וֹרַת כֶּ֖סֶף וְכִכַּר־לָ֑חֶם וְאָמַ֗ר סְפָחֵ֥נִי נָ֛א אֶל־אַחַ֥ת הַכְּהֻנּ֖וֹת לֶאֱכֹ֥ל פַּת־לָֽחֶם׃
+
+</p>
+</div></div>
+</section>
+
+<nav class="chapter-nav"><a class="prev" href="../Samuel/שמא-א.html">→ שמ&quot;א א</a><a class="up" href="../Samuel/index.html">ספר שמואל</a><a class="up" href="../index.html">תוכן הענינים</a><a class="next" href="../Samuel/שמא-ג.html">שמ&quot;א ג ←</a></nav>
+<script>
+(function() {
+  var form = document.getElementById('note-toggle');
+  var pane = document.getElementById('note-pane');
+  var paneBody = document.getElementById('note-pane-body');
+  var paneClose = pane.querySelector('.close');
+  var KEY = 'mam3:notes-mode';
+  var MODES = ['off', 'tooltip', 'shoulder', 'footer'];
+  function apply(mode) {
+    if (MODES.indexOf(mode) < 0) mode = 'off';
+    MODES.forEach(function (m) {
+      document.body.classList.toggle('notes-' + m, m === mode && m !== 'off');
+    });
+    var input = form.querySelector('input[value="' + mode + '"]');
+    if (input) input.checked = true;
+    if (mode !== 'footer') closePane();
+    try { localStorage.setItem(KEY, mode); } catch (e) {}
+    if (mode === 'shoulder') autoCollapseShoulder();
+  }
+  function autoCollapseShoulder() {
+    var notes = Array.prototype.slice.call(document.querySelectorAll('.note'));
+    notes.forEach(function (n) { n.classList.remove('collapsed'); });
+    requestAnimationFrame(function () {
+      // A card is "in the way" if its body bottom extends past the next
+      // note's inline anchor (with a small tolerance), or — for the final
+      // note — past the chapter's bottom.
+      var TOL = 24;
+      var changed = true, safety = 400;
+      while (changed && safety-- > 0) {
+        changed = false;
+        for (var i = 0; i < notes.length; i++) {
+          if (notes[i].classList.contains('collapsed')) continue;
+          var body = notes[i].querySelector('.note-body');
+          if (!body) continue;
+          var myBottom = body.getBoundingClientRect().bottom;
+          var limit;
+          if (i + 1 < notes.length) {
+            var nextMark = notes[i + 1].querySelector('.note-mark');
+            if (!nextMark) continue;
+            limit = nextMark.getBoundingClientRect().top;
+          } else {
+            var section = notes[i].closest('.chapter');
+            limit = section
+              ? section.getBoundingClientRect().bottom
+              : document.documentElement.getBoundingClientRect().bottom;
+          }
+          if (myBottom > limit + TOL) {
+            notes[i].classList.add('collapsed');
+            changed = true;
+            break;
+          }
+        }
+      }
+    });
+  }
+  var resizeTimer = 0;
+  window.addEventListener('resize', function () {
+    if (!document.body.classList.contains('notes-shoulder')) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(autoCollapseShoulder, 120);
+  });
+  function openPane(html) {
+    paneBody.innerHTML = html;
+    pane.classList.add('open');
+    pane.setAttribute('aria-hidden', 'false');
+  }
+  function closePane() {
+    pane.classList.remove('open');
+    pane.setAttribute('aria-hidden', 'true');
+  }
+  paneClose.addEventListener('click', closePane);
+  document.addEventListener('click', function (e) {
+    var note = e.target.closest && e.target.closest('.note');
+    if (!note) return;
+    if (document.body.classList.contains('notes-footer')) {
+      var body = note.querySelector('.note-body');
+      if (body) {
+        e.preventDefault();
+        openPane(body.innerHTML);
+      }
+    } else if (document.body.classList.contains('notes-shoulder')) {
+      if (note.classList.contains('compact-note')) return;
+      e.preventDefault();
+      note.classList.toggle('collapsed');
+    }
+  });
+  form.addEventListener('change', function (e) {
+    if (e.target && e.target.name === 'notes-mode') apply(e.target.value);
+  });
+  var stored = 'off';
+  try { stored = localStorage.getItem(KEY) || 'off'; } catch (e) {}
+  apply(stored);
+})();
+</script>
+</body>
+</html>
